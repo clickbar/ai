@@ -261,6 +261,7 @@ test('response usage includes cache and reasoning tokens', function (): void {
         'usage' => [
             'prompt_tokens' => 100,
             'completion_tokens' => 50,
+            'cost' => 0.25,
             'prompt_tokens_details' => [
                 'cached_tokens' => 20,
                 'cache_write_tokens' => 30,
@@ -277,7 +278,9 @@ test('response usage includes cache and reasoning tokens', function (): void {
         ->and($response->usage->completionTokens)->toBe(50)
         ->and($response->usage->cacheReadInputTokens)->toBe(20)
         ->and($response->usage->cacheWriteInputTokens)->toBe(30)
-        ->and($response->usage->reasoningTokens)->toBe(10);
+        ->and($response->usage->reasoningTokens)->toBe(10)
+        ->and($response->usage->cost)->toBe(0.25)
+        ->and($response->steps->first()->usage->cost)->toBe(0.25);
 });
 
 test('structured response is correctly parsed', function (): void {

@@ -167,8 +167,22 @@ test('transcription usage is correctly parsed', function (): void {
     $response = Transcription::fromBase64(base64_encode('fake-audio'), 'audio/mp3')->generate(provider: 'openrouter');
 
     expect($response->usage->promptTokens)->toBe(100)
-        ->and($response->usage->completionTokens)->toBe(50);
+        ->and($response->usage->completionTokens)->toBe(50)
+        ->and($response->usage->cacheWriteInputTokens)->toBe(0)
+        ->and($response->usage->cost)->toBe(0.0005);
 });
+
+test('transcription accepts missing and zero cost', function (array $usage, ?float $expectedCost): void {
+    Http::fake(['*' => Http::response(['text' => 'Hello', 'usage' => $usage])]);
+
+    $response = Transcription::fromBase64(base64_encode('fake-audio'), 'audio/mp3')->generate(provider: 'openrouter');
+
+    expect($response->usage->cost)->toBe($expectedCost)
+        ->and($response->usage->cacheWriteInputTokens)->toBe(0);
+})->with([
+    'missing cost' => [[], null],
+    'zero cost' => [['cost' => 0], 0.0],
+]);
 
 test('transcription request sends bearer token', function (): void {
     Http::fake(['*' => fakeOpenRouterTranscriptionResponse()]);
