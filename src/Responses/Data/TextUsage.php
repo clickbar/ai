@@ -17,8 +17,9 @@ readonly class TextUsage extends Usage
         public ?int $cacheReadInputTokens = null,
         public ?int $cacheWriteInputTokens = null,
         public ?int $reasoningTokens = null,
+        ?float $cost = null,
     ) {
-        parent::__construct($inputTokens, $outputTokens);
+        parent::__construct($inputTokens, $outputTokens, $cost);
     }
 
     /**
@@ -34,6 +35,7 @@ readonly class TextUsage extends Usage
             cacheReadInputTokens: $data['cache_read_input_tokens'] ?? null,
             cacheWriteInputTokens: $data['cache_write_input_tokens'] ?? null,
             reasoningTokens: $data['reasoning_tokens'] ?? null,
+            cost: $data['cost'] ?? null,
         );
     }
 
@@ -56,6 +58,7 @@ readonly class TextUsage extends Usage
             static::sum($this->cacheReadInputTokens, $usage->cacheReadInputTokens),
             static::sum($this->cacheWriteInputTokens, $usage->cacheWriteInputTokens),
             static::sum($this->reasoningTokens, $usage->reasoningTokens),
+            $this->cost === null && $usage->cost === null ? null : ($this->cost ?? 0) + ($usage->cost ?? 0),
         );
     }
 

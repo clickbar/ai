@@ -124,7 +124,8 @@ test('usage tokens are parsed from response', function (): void {
     $response = Image::of('A blue circle')->generate(provider: 'openrouter', model: 'google/gemini-2.5-flash-image');
 
     expect($response->usage->inputTokens)->toBe(10)
-        ->and($response->usage->outputTokens)->toBe(20);
+        ->and($response->usage->outputTokens)->toBe(20)
+        ->and($response->usage->cost)->toBe(0.04);
 });
 
 test('multiple images in response are all returned', function (): void {

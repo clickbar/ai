@@ -431,7 +431,7 @@ Refer to Gemini's [Interactions API migration guide](https://ai.google.dev/gemin
 
 **Likelihood Of Impact: Medium**
 
-This change affects applications that construct response or stream objects directly. The `Laravel\Ai\Responses\Data\Usage` class now contains only `inputTokens` and `outputTokens`. Text-specific properties and methods have moved to `Laravel\Ai\Responses\Data\TextUsage`:
+This change affects applications that construct response or stream objects directly. The `Laravel\Ai\Responses\Data\Usage` class now contains `inputTokens`, `outputTokens`, and this fork's optional `cost` property. Text-specific properties and methods have moved to `Laravel\Ai\Responses\Data\TextUsage`:
 
 - `cacheReadInputTokens`
 - `cacheWriteInputTokens`
@@ -456,6 +456,8 @@ new TextUsage($inputTokens, $outputTokens, $cacheReadInputTokens, $cacheWriteInp
 ```
 
 The cache read and cache write arguments have swapped positions. The three optional counts are now nullable and contain `null` when the provider does not report them. Use the null coalescing operator when treating these values as numbers.
+
+This fork preserves OpenRouter cost tracking for text, streaming, images, and transcription. Continue reading `$response->usage->cost`; it is `null` when the provider does not report a cost. All usage constructors accept `cost:` as an optional trailing named argument. Text costs are accumulated across generation steps and retained when usage is serialized and restored with `TextUsage::fromArray()`.
 
 ### Usage Is Reported For Every Response
 

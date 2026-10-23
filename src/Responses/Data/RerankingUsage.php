@@ -11,8 +11,9 @@ readonly class RerankingUsage extends Usage
     public function __construct(
         int $inputTokens = 0,
         public ?float $searchUnits = null,
+        ?float $cost = null,
     ) {
-        parent::__construct($inputTokens);
+        parent::__construct($inputTokens, cost: $cost);
     }
 
     /**

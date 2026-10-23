@@ -38,7 +38,7 @@ test('usage add keeps a detail null only when neither side reported it', functio
 });
 
 test('usage from array restores what to array serialized', function (): void {
-    $usage = new TextUsage(100, 50, 10, 25, null);
+    $usage = new TextUsage(100, 50, 10, 25, null, cost: 0.25);
 
     expect(TextUsage::fromArray($usage->toArray()))->toEqual($usage)
         ->and(TextUsage::fromArray([]))->toEqual(new TextUsage);
@@ -50,8 +50,34 @@ test('usage to array serializes every count', function (): void {
     expect($usage->toArray())->toBe([
         'input_tokens' => 100,
         'output_tokens' => 50,
+        'cost' => null,
         'cache_read_input_tokens' => 10,
         'cache_write_input_tokens' => 25,
         'reasoning_tokens' => null,
     ])->and($usage->jsonSerialize())->toBe($usage->toArray());
 });
+
+test('usage adds costs without mutating the original values', function (?float $first, ?float $second, ?float $expected): void {
+    $usage = new TextUsage(cost: $first);
+    $other = new TextUsage(cost: $second);
+
+    $combined = $usage->add($other);
+
+    expect($combined->cost)->toBe($expected)
+        ->and($usage->cost)->toBe($first)
+        ->and($other->cost)->toBe($second);
+})->with([
+    'unknown costs' => [null, null, null],
+    'initial unknown cost' => [null, 0.25, 0.25],
+    'subsequent unknown cost' => [0.25, null, 0.25],
+    'known costs' => [0.25, 0.5, 0.75],
+    'zero cost' => [0.0, 0.0, 0.0],
+]);
+
+test('usage restores cost from serialized data', function (?float $cost): void {
+    $usage = new TextUsage(100, 50, 10, 25, 5, cost: $cost);
+
+    expect($usage->toArray()['cost'])->toBe($cost)
+        ->and(TextUsage::fromArray($usage->toArray()))->toEqual($usage)
+        ->and(TextUsage::fromArray(json_decode(json_encode($usage), true)))->toEqual($usage);
+})->with([null, 0.0, 0.25]);

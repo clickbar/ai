@@ -146,7 +146,11 @@ class OpenRouterGateway implements Gateway, RerankingGateway, StepTextGateway
                 $image['b64_json'] ?? '',
                 $image['media_type'] ?? 'image/png',
             )),
-            new ImageUsage($data['usage']['prompt_tokens'] ?? 0, $data['usage']['completion_tokens'] ?? 0),
+            new ImageUsage(
+                inputTokens: $data['usage']['prompt_tokens'] ?? 0,
+                outputTokens: $data['usage']['completion_tokens'] ?? 0,
+                cost: $data['usage']['cost'] ?? null,
+            ),
             new Meta($provider->name(), $model),
         ))->withRawResponse($response);
     }
@@ -286,6 +290,7 @@ class OpenRouterGateway implements Gateway, RerankingGateway, StepTextGateway
                 inputTokens: Arr::get($data, 'usage.input_tokens', 0),
                 outputTokens: Arr::get($data, 'usage.output_tokens', 0),
                 audioSeconds: Arr::get($data, 'usage.seconds'),
+                cost: Arr::get($data, 'usage.cost'),
             ),
             new Meta($provider->name(), $model),
         ))->withRawResponse($response);

@@ -10,10 +10,12 @@ readonly class Usage implements Arrayable, JsonSerializable
     /**
      * @param  int  $inputTokens  Total input tokens.
      * @param  int  $outputTokens  Total output tokens.
+     * @param  float|null  $cost  Provider-reported cost, or null when unreported.
      */
     public function __construct(
         public int $inputTokens = 0,
         public int $outputTokens = 0,
+        public ?float $cost = null,
     ) {}
 
     /**
@@ -32,6 +34,7 @@ readonly class Usage implements Arrayable, JsonSerializable
         return [
             'input_tokens' => $this->inputTokens,
             'output_tokens' => $this->outputTokens,
+            'cost' => $this->cost,
         ];
     }
 
